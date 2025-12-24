@@ -60,7 +60,7 @@ def generate_question(state: InterviewState) -> InterviewState:
 
     structured_model = model.with_structured_output(SearchQuery)
     search_query = structured_model.invoke([SystemMessage(content=search_instructions)]+state.interview_messages + [question])
-        
+    
     # Write messages to state
     return {
         "interview_messages": [question],

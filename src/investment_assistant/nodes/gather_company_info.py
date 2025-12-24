@@ -2,7 +2,7 @@ from langchain.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
 from investment_assistant.states import ResearchStateWithMessage, ResearchState
-from investment_assistant.utils.models import model
+from investment_assistant.utils.models import model, cheap_model
 from investment_assistant.utils.web_search import search_engine
 
 class CompanyNameOutput(BaseModel):
@@ -85,6 +85,6 @@ def gather_info(state: ResearchStateWithMessage) -> ResearchStateWithMessage:
     model_with_structure = model.with_structured_output(ResearchState)
     extracted_model = model_with_structure.invoke([SystemMessage(content=structured_data_extraction), HumanMessage(content=search_answer)])
 
-    result = model.invoke([SystemMessage(content=data_natural_language_explain), HumanMessage(content=f"Dictionary: {extracted_model.model_dump()}")])
+    result = cheap_model.invoke([SystemMessage(content=data_natural_language_explain), HumanMessage(content=f"Dictionary: {extracted_model.model_dump()}")])
 
     return {"messages": result, **extracted_model.model_dump()}

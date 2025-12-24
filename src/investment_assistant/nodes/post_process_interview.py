@@ -2,7 +2,7 @@ from langchain.messages import AIMessage, SystemMessage, HumanMessage
 from langchain_core.messages import get_buffer_string
 
 from investment_assistant.states import InterviewState
-from investment_assistant.utils.models import model
+from investment_assistant.utils.models import cheap_model
 
 def save_interview(state: InterviewState):
     """ Save interviews """
@@ -38,7 +38,7 @@ def route_messages(state: InterviewState, name: str = "expert"):
     return "ask_question"
 
 section_writer_instructions = """You are an expert technical writer. 
-Your task is to create a short, easily digestible section of a report based on an interview conducted by an analyst with a subject-matter expert from a company.
+Your task is to create a short, easily digestible section of a Report(Editorial Synthesis) based on an interview conducted by an analyst with a subject-matter expert from a company.
 The interview conversation will be provided as input.
 
 IMPORTANT CONTENT RULES:
@@ -52,16 +52,23 @@ REPORT STRUCTURE (Markdown required):
 
 The report must follow this exact structure:
 a. ## Title  
-b. ### Editorial Synthesis
+b. ### Report
+c. ### Key Positives
+d. ### Key Negatives
 
 TITLE GUIDELINES:
 - Make the title engaging and relevant to the analyst’s focus area: {focus}
 
-EDITORIAL SYNTHESIS GUIDELINES:
+REPORT GUIDELINES:
 - Begin with general background or context related to the analyst’s focus area
 - Highlight novel, interesting, or surprising insights from the interview
 - Cover all topics discussed in the interview
 - Do not mention the names of interviewers or experts
+
+KEY POSITIVES AND NEGATIVES GUIDELINES:
+- Based ONLY on the interview content, list statements, facts, or signals that support a positive investment case under Key Positives.
+- Based ONLY on the interview content, list statements, facts, or signals that support a negative or cautionary investment case under Key Negatives.
+- If the interview does not provide information that clearly supports either side, include only what is explicitly stated and do not infer or speculate.
 
 FINAL CHECK:
 - Follow the required structure exactly
@@ -77,7 +84,7 @@ def write_section(state: InterviewState):
    
     # Write section using either the gathered source docs from interview (context) or the interview itself (interview)
     system_message = section_writer_instructions.format(focus=analyst.description)
-    section = model.invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Here is the interview transcript: {interview}")]) 
+    section = cheap_model.invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Here is the interview transcript: {interview}")]) 
                 
     # Append it to state
     return {"sections": [section.content]}

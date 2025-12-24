@@ -4,8 +4,6 @@ from langgraph.graph.message import add_messages
 from langchain.messages import AnyMessage
 import operator
 
-from investment_assistant.states.analyst import Analyst
-
 
 class ResearchState(BaseModel):
     company_name: str | None = Field(None, description="Name of the company for which research is being undertaken")
@@ -17,3 +15,4 @@ class ResearchState(BaseModel):
 class ResearchStateWithMessage(ResearchState):
     messages: Annotated[List[AnyMessage], add_messages]
     sections: Annotated[List[str], operator.add]
+    

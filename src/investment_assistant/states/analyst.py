@@ -13,14 +13,14 @@ class Analyst(BaseModel):
     @property
     def persona(self) -> str:
         return f"Name: {self.name}\nRole: {self.role}\nDescription: {self.description}\n"
-    
+
 class Company(BaseModel):
     name: str
     country: str
     sectors: List[str]
 
 class InterviewState(BaseModel):
-    max_num_turns: int = 3
+    max_num_turns: int = 2
     context: Annotated[List[str], operator.add] = []# Source docs
     analyst: Analyst # Analyst asking questions
     company: Company # Company for which research is being conducted
