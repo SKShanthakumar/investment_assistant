@@ -21,7 +21,7 @@ When answering questions, follow these guidelines:
 6. Be precise, factual, and detailed. Avoid speculation.
 """
 
-def generate_answer(state: InterviewState):
+async def generate_answer(state: InterviewState):
     """ Node to answer a question """
 
     # Get state
@@ -34,7 +34,7 @@ def generate_answer(state: InterviewState):
 
     # Answer question
     system_message = answer_instructions.format(goals=analyst.persona, context=context, company=company)
-    answer = model.invoke([SystemMessage(content=system_message)]+messages)
+    answer = await model.ainvoke([SystemMessage(content=system_message)]+messages)
             
     # Name the message as coming from the expert
     answer.name = "expert"

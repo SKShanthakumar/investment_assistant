@@ -1,7 +1,7 @@
-from langchain.messages import SystemMessage
+from langchain.messages import SystemMessage, HumanMessage
 
-from investment_assistant.states import InterviewState, SearchQuery
-from investment_assistant.utils.models import model
+from investment_assistant.states import InterviewState
+from investment_assistant.utils.models import model, cheap_model
 
 question_instructions = """You are an analyst conducting a structured interview with a subject-matter expert from the company {company.name}.
 
@@ -43,10 +43,11 @@ search_instructions = """You will be given a conversation between an analyst and
 Your goal is to generate a well-structured and detailed query for use in retrieval and / or web-search related to the conversation.
 First, analyze the full conversation.
 Pay particular attention to the final question posed by the analyst.
-Convert this final question into a well-structured web search query
+Convert this final question into a well-structured web search query.
+NOTE: Return only the search query not any extra explanation and analysis.
 """
 
-def generate_question(state: InterviewState) -> InterviewState:
+async def generate_question(state: InterviewState) -> InterviewState:
     """ Node to generate a question """
 
     # Get state
@@ -56,13 +57,23 @@ def generate_question(state: InterviewState) -> InterviewState:
 
     # Generate question 
     system_message = question_instructions.format(goals=analyst, company=company)
-    question = model.invoke([SystemMessage(content=system_message)]+messages)
+    question = await model.ainvoke([SystemMessage(content=system_message)]+messages)
 
-    structured_model = model.with_structured_output(SearchQuery)
-    search_query = structured_model.invoke([SystemMessage(content=search_instructions)]+state.interview_messages + [question])
+    # print("QUESTION LLM RESULT")
+    # print(question)
+
+    interview = ""
+    for i, message in enumerate(state.interview_messages[1:] + [question]):
+        role = 'Analyst' if i % 2 == 0 else 'Expert'
+        interview += f'{role}: {message.content}\n\n'
+
+    result = await model.ainvoke([SystemMessage(content=search_instructions), HumanMessage(content=interview) ])
     
+    # print("SEARCH QUERY LLM RESULT")
+    # print(result)
+
     # Write messages to state
     return {
         "interview_messages": [question],
-        "search_query": search_query.search_query
+        "search_query": result.content
         }

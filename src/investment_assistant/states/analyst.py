@@ -28,6 +28,3 @@ class InterviewState(BaseModel):
     sections: List[str] = [] # Final key we duplicate in outer state for Send() API
     interview_messages: Annotated[List[AnyMessage], add_messages]
     search_query: str = ""
-
-class SearchQuery(BaseModel):
-    search_query: str = Field(None, description="Search query for retrieval.")

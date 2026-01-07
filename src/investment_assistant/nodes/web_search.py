@@ -1,7 +1,7 @@
 from investment_assistant.states import InterviewState
 from investment_assistant.utils.web_search import search_engine
 
-def search_web(state: InterviewState) -> InterviewState:
+async def search_web(state: InterviewState) -> InterviewState:
     
     """ Retrieve docs from web search """
 
@@ -9,10 +9,10 @@ def search_web(state: InterviewState) -> InterviewState:
     search_query = state.search_query
     
     # Search
-    data = search_engine.invoke({"query": search_query})
+    data = await search_engine.ainvoke({"query": search_query})
     search_docs = data.get("results", data)
     
-     # Format
+    # Format
     formatted_search_docs = "\n\n---\n\n".join(
         [
             f'<Document href="{doc["url"]}"/>\n{doc["content"]}\n</Document>'
@@ -20,4 +20,4 @@ def search_web(state: InterviewState) -> InterviewState:
         ]
     )
 
-    return {"context": [formatted_search_docs]} 
+    return {"context": [formatted_search_docs]}

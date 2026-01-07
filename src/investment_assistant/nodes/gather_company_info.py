@@ -59,7 +59,7 @@ data_natural_language_explain = """You will be given dictionaries in format
     xyz is a private company, can you provide much more clear description of the company.
     """
 
-def gather_info(state: ResearchStateWithMessage) -> ResearchStateWithMessage:
+async def gather_info(state: ResearchStateWithMessage) -> ResearchStateWithMessage:
     """
     Gathers company information and updates the research state.
 
@@ -75,16 +75,16 @@ def gather_info(state: ResearchStateWithMessage) -> ResearchStateWithMessage:
     messages = [SystemMessage(content=company_name_extraction)] + chat
 
     model_with_structure = model.with_structured_output(CompanyNameOutput)
-    extracted_company = model_with_structure.invoke(messages)
+    extracted_company = await model_with_structure.ainvoke(messages)
 
     company_name = extracted_company.company_name
 
-    result = search_engine.invoke({"query": f"Is {company_name} a public company? which country does it belong to? if it is traded publicly what is the stock symbol(If in india get symbol of NSE)? In what sectors does it operate?"})
+    result = await search_engine.ainvoke({"query": f"Is {company_name} a public company? which country does it belong to? if it is traded publicly what is the stock symbol(If in india get symbol of NSE)? In what sectors does it operate?"})
     search_answer = result['answer']
 
     model_with_structure = model.with_structured_output(ResearchState)
-    extracted_model = model_with_structure.invoke([SystemMessage(content=structured_data_extraction), HumanMessage(content=search_answer)])
+    extracted_model = await model_with_structure.ainvoke([SystemMessage(content=structured_data_extraction), HumanMessage(content=search_answer)])
 
-    result = cheap_model.invoke([SystemMessage(content=data_natural_language_explain), HumanMessage(content=f"Dictionary: {extracted_model.model_dump()}")])
+    result = await cheap_model.ainvoke([SystemMessage(content=data_natural_language_explain), HumanMessage(content=f"Dictionary: {extracted_model.model_dump()}")])
 
     return {"messages": result, **extracted_model.model_dump()}

@@ -75,7 +75,7 @@ FINAL CHECK:
 - Include no text before the title
 """
 
-def write_section(state: InterviewState):
+async def write_section(state: InterviewState):
     """ Node to answer a question """
 
     # Get state
@@ -84,7 +84,7 @@ def write_section(state: InterviewState):
    
     # Write section using either the gathered source docs from interview (context) or the interview itself (interview)
     system_message = section_writer_instructions.format(focus=analyst.description)
-    section = cheap_model.invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Here is the interview transcript: {interview}")]) 
+    section = await cheap_model.ainvoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Here is the interview transcript: {interview}")]) 
                 
     # Append it to state
     return {"sections": [section.content]}
