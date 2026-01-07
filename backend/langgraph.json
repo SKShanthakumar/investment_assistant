@@ -1,0 +1,10 @@
+{
+  "$schema": "https://langgra.ph/schema.json",
+  "dependencies": ["."],
+  "graphs": {
+    "research": "src/investment_assistant/graphs/research_graph.py:ResearchGraph",
+    "interview": "src/investment_assistant/graphs/interview_graph.py:InterviewGraph"
+  },
+  "env": "../.env",
+  "image_distro": "wolfi"
+}
