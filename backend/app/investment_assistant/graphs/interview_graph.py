@@ -17,7 +17,7 @@ builder.add_edge("ask_question", "search_web")
 builder.add_edge("ask_question", "search_wikipedia")
 builder.add_edge("search_web", "answer_question")
 builder.add_edge("search_wikipedia", "answer_question")
-builder.add_conditional_edges("answer_question", route_messages,['ask_question','write_analysis_report'])
+builder.add_conditional_edges("answer_question", route_messages, ['ask_question','write_analysis_report'])
 builder.add_edge("write_analysis_report", END)
 
 InterviewGraph = builder.compile()

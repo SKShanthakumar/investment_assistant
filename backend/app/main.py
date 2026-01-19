@@ -5,7 +5,7 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.graph.state import CompiledStateGraph
 
 from app.database.postgres import engine, Base
-from app.core.settings import settings
+from app.core.config import settings
 from app.routes import chat_router
 from investment_assistant.graphs import build_research_graph
 
@@ -21,7 +21,6 @@ async def lifespan(app: FastAPI):
     checkpointer = await checkpointer_manager.__aenter__()
     await checkpointer.setup()
 
-    app.state.checkpointer = checkpointer
     app.state.graph = build_research_graph(checkpointer)
 
     print("Checkpointer and graph initialized")
@@ -52,6 +51,6 @@ app.add_middleware(
 @app.get('/test')
 async def test(request: Request):
     graph: CompiledStateGraph = request.app.state.graph
-    thread = {"configurable": {"thread_id": '212113'}}
+    thread = {"configurable": {"thread_id": '22113'}}
 
     return await graph.aget_state(config=thread)

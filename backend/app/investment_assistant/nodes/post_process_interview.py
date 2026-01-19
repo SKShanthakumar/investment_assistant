@@ -15,7 +15,7 @@ def route_messages(state: InterviewState, name: str = "expert"):
     expert_response_count = len([message for message in messages if message.name == name])
 
     if expert_response_count >= max_expert_responses:
-        return 'save_interview'
+        return 'write_analysis_report'
 
     last_question = messages[-2]
     

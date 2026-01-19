@@ -1,5 +1,7 @@
-from langgraph.graph.state import CompiledStateGraph
+from langgraph.graph.state import CompiledStateGraph    
 import json
+
+from app.utils.chat import validate_thread
 
 async def chat(graph: CompiledStateGraph, thread_id: str, prompt: str):
     thread = {"configurable": {"thread_id": thread_id}}
@@ -50,18 +52,8 @@ async def chat(graph: CompiledStateGraph, thread_id: str, prompt: str):
 async def approve_research(graph: CompiledStateGraph, thread_id: str, action: bool):
     thread = {"configurable": {"thread_id": thread_id}}
 
-    # Check thread already exists
-    state = await graph.aget_state(
-        config=thread
-    )
-    if not state[-3]:
-        return "error", {"message": "Thread not found"}
-    
-    # Check whether this thread waits for human approval
-    history = [state async for state in graph.aget_state_history(config=thread)]
-    next_node = history[0].next
-    if not next_node or (next_node and next_node[0] != 'human_approval'):
-        return "error", {"message": "Attempting invalid action"}
+    if not validate_thread(graph, thread):
+        return "error", {"message": "Invalid thread id."}
 
     # Update state with approval action
     await graph.aupdate_state(config=thread, values={"approved": action}, as_node="human_approval")
