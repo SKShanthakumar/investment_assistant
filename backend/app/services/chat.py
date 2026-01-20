@@ -1,10 +1,12 @@
 from langgraph.graph.state import CompiledStateGraph
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import BackgroundTasks
+from fastapi.responses import JSONResponse
 import json
 import uuid
 
 from app.utils.chat import validate_thread
+
 
 async def add_chat_to_db(thread_id: str, role: str, message: str, db: AsyncIOMotorDatabase):
     chat_doc = {
@@ -20,6 +22,7 @@ async def add_chat_to_db(thread_id: str, role: str, message: str, db: AsyncIOMot
         },
         upsert=True
     )
+
 
 async def chat(graph: CompiledStateGraph, thread_id: str, prompt: str, background_tasks: BackgroundTasks, db: AsyncIOMotorDatabase):
     if thread_id is None:
@@ -79,6 +82,7 @@ async def chat(graph: CompiledStateGraph, thread_id: str, prompt: str, backgroun
     
     return event_gen
 
+
 async def approve_research(graph: CompiledStateGraph, thread_id: str, action: bool, background_tasks: BackgroundTasks, db: AsyncIOMotorDatabase):
     thread = {"configurable": {"thread_id": thread_id}}
 
@@ -130,3 +134,18 @@ async def approve_research(graph: CompiledStateGraph, thread_id: str, action: bo
         yield f'data: {json.dumps({"type": "stream_end", "thread_id": thread_id})}' + "\n\n"
 
     return "success", event_gen
+
+
+async def get_chat_list(thread_id: str, db: AsyncIOMotorDatabase):
+    result = await db.chat.find_one({"thread_id": thread_id})
+    return JSONResponse(content={'chat': result['chat']})
+
+
+async def get_chat_history(db: AsyncIOMotorDatabase):
+    docs = []
+    async for doc in db.chat.find({}):
+        docs.append({
+            'thread_id': doc['thread_id'],
+            'title': doc['chat'][0]['message']
+        })
+    return JSONResponse(content={'history': docs[::-1]})

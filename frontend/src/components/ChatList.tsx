@@ -3,6 +3,16 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from "remark-gfm";
 
 export default function ChatList({ chat, approval_required, handle_approval, loading, research }: ChatListProps){
+    if (chat.length == 0){
+        return (
+            <div className="text-center text-white">
+                <p className="text-3xl mb-4">Hi, I’m StoxAI</p>
+                <p className="text-sm">I help you research stocks before you invest.</p>
+                <p className="text-sm">Ask me about any company and I’ll break it down with deep analysis and SWOT insights.</p>
+                <p className="italic mt-4">Try asking: “Should I invest in NVIDIA?”</p>
+            </div>
+        )
+    }
     return(
         <div className="space-y-6 text-white">
             {chat.map((msg, idx) => {

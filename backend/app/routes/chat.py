@@ -26,6 +26,16 @@ async def approve_research(action: bool, thread_id: str, request: Request, backg
     )
 
 
+@router.get('/list/{thread_id}', response_class=JSONResponse)
+async def get_chat_list(thread_id: str, db: AsyncIOMotorDatabase = Depends(get_mongo_db)):
+    return await chat_service.get_chat_list(thread_id, db)
+
+
+@router.get('/history', response_class=JSONResponse)
+async def get_chat_history(db: AsyncIOMotorDatabase = Depends(get_mongo_db)):
+    return await chat_service.get_chat_history(db)
+
+
 @router.get('/')
 async def chat(prompt: str, request: Request, background_tasks: BackgroundTasks, db: AsyncIOMotorDatabase = Depends(get_mongo_db), thread_id: str = None):
 

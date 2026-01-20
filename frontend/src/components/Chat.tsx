@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import ChatInput from "./ChatInput";
-import type { ChatMessage } from "../types/chat";
+import type { ChatMessage, ChatProps } from "../types/chat";
 import ChatList from "./ChatList";
+import axios from "axios";
 
-export default function Chat() {
+export default function Chat({ thread, setThread }: ChatProps) {
   const [inputMessage, setInputMessage] = useState<string>("");
   const [approvalRequired, setApprovalRequired] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -11,6 +12,20 @@ export default function Chat() {
   const [chat, setChat] = useState<ChatMessage[]>([]);
 
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    const fetchChat = async () => {
+      let result = await axios.get(`${apiUrl}/chat/list/${thread}`)
+      setChat(result.data.chat)
+    }
+
+    if (thread == null){
+      setChat([]);  // null thread implies new chat
+      return;
+    }
+    
+    fetchChat();
+  }, [thread])
 
   // for auto scroll
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -46,7 +61,7 @@ export default function Chat() {
 
     // 3. Open new SSE stream
     const es = new EventSource(
-      `${apiUrl}/chat?thread_id=${"212130212130"}&prompt=${encodeURIComponent(inputMessage)}`
+      `${apiUrl}/chat?&${thread != null? `thread_id=${thread}`:''}prompt=${encodeURIComponent(inputMessage)}`
     );
 
     // 4. Receive streamed tokens
@@ -66,6 +81,7 @@ export default function Chat() {
 
       else if (data.type === "stream_end") {
         closeConnection(es);
+        setThread(data.thread_id)
         return;
       }
 
@@ -109,7 +125,7 @@ export default function Chat() {
 
     // 3. Open new SSE stream
     const es = new EventSource(
-      `${apiUrl}/chat/approve?thread_id=${"212130212130"}&action=1`
+      `${apiUrl}/chat/approve?thread_id=${thread}&action=1`
     );
 
     // 4. Receive streamed tokens
@@ -155,7 +171,7 @@ export default function Chat() {
 
   return (
     <div className="h-screen flex-1 flex flex-col p-5">
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center">
         <ChatList
           chat={chat}
           approval_required={approvalRequired}

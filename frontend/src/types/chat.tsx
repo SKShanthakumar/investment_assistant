@@ -7,6 +7,11 @@ export interface ChatMessage {
     message: string
 }
 
+export interface ChatProps {
+  thread: string | null
+  setThread: (thread_id: string) => void
+}
+
 export interface ChatInputProps {
   onSubmit: (e: FormEvent) => void;
   inputHandler: (value: string) => void

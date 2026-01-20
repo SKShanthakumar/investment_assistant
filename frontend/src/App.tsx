@@ -1,7 +1,11 @@
+import { useState } from "react";
 import Chat from "./components/Chat";
 import SideBar from "./components/Sidebar";
 
 function App() {
+  const [thread, setThread] = useState<string | null>(null);
+  const updateThread = (thread_id: string | null) => setThread(thread_id)
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-[#050816]">
       {/* Main color wash */}
@@ -11,8 +15,8 @@ function App() {
 
       {/* Content */}
       <div className="relative z-10 flex">
-        <SideBar />
-        <Chat />
+        <SideBar thread={thread} handleClick={updateThread} />
+        <Chat thread={thread} setThread={updateThread} />
       </div>
     </div>
   );
