@@ -16,4 +16,4 @@ class ResearchStateWithMessage(ResearchState):
     messages: Annotated[List[AnyMessage], add_messages]
     sections: Annotated[List[str], operator.add]
     approved: bool = False
-    
+    summary: str = ''

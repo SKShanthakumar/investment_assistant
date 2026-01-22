@@ -32,7 +32,7 @@ export default function ChatList({ chat, approval_required, handle_approval, loa
             ): null }
             { loading? (
                 <div className="flex items-center gap-1">
-                    <span className="animate-pulse">{ research? 'Conducting deep research, please hold on...' : 'Thinking'}...</span>
+                    <span className="animate-pulse">{ research? 'Conducting deep research, please hold on' : 'Thinking'}...</span>
                 </div>
             ): null}
         </div>

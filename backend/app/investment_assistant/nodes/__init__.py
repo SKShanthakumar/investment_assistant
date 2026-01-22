@@ -8,3 +8,4 @@ from investment_assistant.nodes.search_wiki import *
 from investment_assistant.nodes.finalize_report import *
 from investment_assistant.nodes.intent_classification import *
 from investment_assistant.nodes.chat import *
+from investment_assistant.nodes.summarize import token_limit_checker

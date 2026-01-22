@@ -61,7 +61,7 @@ export default function Chat({ thread, setThread }: ChatProps) {
 
     // 3. Open new SSE stream
     const es = new EventSource(
-      `${apiUrl}/chat?&${thread != null? `thread_id=${thread}`:''}prompt=${encodeURIComponent(inputMessage)}`
+      `${apiUrl}/chat?${thread != null? `thread_id=${thread}`:''}&prompt=${encodeURIComponent(inputMessage)}`
     );
 
     // 4. Receive streamed tokens
@@ -80,13 +80,15 @@ export default function Chat({ thread, setThread }: ChatProps) {
       }
 
       else if (data.type === "stream_end") {
-        closeConnection(es);
         setThread(data.thread_id)
+        closeConnection(es);
         return;
       }
 
       else if (data.type === "approval_required"){
         setApprovalRequired(true);
+        setThread(data.thread_id);
+
         closeConnection(es);
         return;
       }
@@ -171,7 +173,7 @@ export default function Chat({ thread, setThread }: ChatProps) {
 
   return (
     <div className="h-screen flex-1 flex flex-col p-5">
-      <div className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center">
+      <div className={`flex-1 min-h-0 overflow-y-auto ${chat.length == 0? 'flex items-center justify-center': ''}`}>
         <ChatList
           chat={chat}
           approval_required={approvalRequired}

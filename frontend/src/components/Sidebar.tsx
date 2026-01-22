@@ -16,7 +16,7 @@ export default function SideBar({ handleClick, thread }: SidebarProps){
     }, [thread])
 
     const applyHighlight = (thread_id: string) => thread_id === thread? 'bg-white/20 font-semibold': ''
-    const renderChatHistory = chatHistory.map(chat => <button className={`text-left cursor-pointer px-4 hover:bg-white/10 duration-200 rounded-lg py-2 ${applyHighlight(chat.thread_id)}`} onClick={e => handleClick(chat.thread_id)}>{chat.title}</button>)
+    const renderChatHistory = chatHistory.map(chat => <button className={`text-left cursor-pointer px-4 hover:bg-white/10 duration-200 rounded-lg py-2 truncate ${applyHighlight(chat.thread_id)}`} onClick={e => handleClick(chat.thread_id)}>{chat.title}</button>)
 
     return (
         <div className="bg-white/10 p-2 border border-white/20 shadow-lg w-64 h-[95vh] m-4 rounded-xl flex flex-col justify-between">

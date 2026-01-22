@@ -1,0 +1,61 @@
+from langchain.messages import HumanMessage, SystemMessage, AIMessage, RemoveMessage
+from typing import List
+
+from investment_assistant.states import ResearchStateWithMessage
+from investment_assistant.utils.models import model
+from investment_assistant.prompts.summarize import system_prompt
+
+
+TOKEN_LIMIT = 4000
+
+def get_conversation_string(messages: List[HumanMessage | AIMessage]):
+    conversation = []
+
+    for message in messages:
+        role = 'AI: ' if isinstance(message, AIMessage) else "USER: "
+        conversation.append(role + message.content)
+
+    return '\n\n'.join(conversation)
+
+
+async def summarize_conversation(chat: List[HumanMessage | AIMessage], summary: str):
+    if summary:
+        summary_message = (
+            f"This is summary of the conversation to date: {summary}\n\nExtend the summary by taking into account the new conversation above:"
+        )
+        
+    else:
+        summary_message = "Create a summary of the conversation above:"
+
+    prompt = get_conversation_string(chat) + '\n\n' + summary_message
+    messages = [
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=prompt)
+        ]
+    
+    response = await model.ainvoke(messages)
+    
+    return response.content
+
+
+def calculate_tokens(messages: List[HumanMessage | AIMessage]):
+    conversation_string = ''.join([message.content for message in messages])
+    
+    # ideal token length is 4 characters
+    return len(conversation_string) // 4
+
+
+async def token_limit_checker(state: ResearchStateWithMessage):
+
+    messages = state.messages
+    summary = state.summary
+    delete_messages = []    # List messages to truncate - remains empty if summarization is not triggered
+
+    token_count = calculate_tokens(messages)
+    if token_count > TOKEN_LIMIT:
+        summary = await summarize_conversation(messages, summary)
+
+        # Retaining last 2 messages
+        delete_messages = [RemoveMessage(id=m.id) for m in messages[:-2]]
+    print('\n\n\n\n\n', token_count, '\n\n\n\n\n\n')
+    return {"summary": summary, "messages": delete_messages}
