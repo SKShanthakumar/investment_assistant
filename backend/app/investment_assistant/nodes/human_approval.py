@@ -14,6 +14,8 @@ def build_interview_send(analyst: Analyst, company: Company) -> Send:
         """
         Create a Send event for initiating an interview with a given analyst.
         """
+
+        # Analyst role is like - 'Fundamental Analyst'. Changing that to 'Fundamental Analysis' format
         interview_focus = " ".join(
             analyst.role.split()[:-1] + ["Analysis"]
         )

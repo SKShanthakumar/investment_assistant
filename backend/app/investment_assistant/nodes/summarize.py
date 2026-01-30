@@ -1,8 +1,9 @@
 from langchain.messages import HumanMessage, SystemMessage, AIMessage, RemoveMessage
 from typing import List
+from langfuse import observe
 
 from investment_assistant.states import ResearchStateWithMessage
-from investment_assistant.utils.models import model
+from investment_assistant.utils.models import llm_call
 from investment_assistant.prompts.summarize import system_prompt
 
 
@@ -18,6 +19,7 @@ def get_conversation_string(messages: List[HumanMessage | AIMessage]):
     return '\n\n'.join(conversation)
 
 
+@observe
 async def summarize_conversation(chat: List[HumanMessage | AIMessage], summary: str):
     if summary:
         summary_message = (
@@ -33,7 +35,7 @@ async def summarize_conversation(chat: List[HumanMessage | AIMessage], summary: 
         HumanMessage(content=prompt)
         ]
     
-    response = await model.ainvoke(messages)
+    response = await llm_call(messages)
     
     return response.content
 
@@ -57,5 +59,5 @@ async def token_limit_checker(state: ResearchStateWithMessage):
 
         # Retaining last 2 messages
         delete_messages = [RemoveMessage(id=m.id) for m in messages[:-2]]
-    print('\n\n\n\n\n', token_count, '\n\n\n\n\n\n')
+    
     return {"summary": summary, "messages": delete_messages}

@@ -38,14 +38,14 @@ analyst_data = [
     #         "His central question is why competitors are unable to erode returns over time."
     #     ),
     # },
-    # {
-    #     "name": "Aisha Rahman",
-    #     "role": "Risk Analysis Agent",
-    #     "description": (
-    #         "Aisha specializes in identifying downside risks, including drawdowns, tail risks, "
-    #         "and black-swan events. She evaluates exposure to government bans, tax changes, "
-    #         "licensing risks, ESG regulation, technological disruption, product obsolescence, "
-    #         "and innovation cycle risks."
-    #     ),
-    # },
+    {
+        "name": "Aisha Rahman",
+        "role": "Risk Analysis Agent",
+        "description": (
+            "Aisha specializes in identifying downside risks, including drawdowns, tail risks, "
+            "and black-swan events. She evaluates exposure to government bans, tax changes, "
+            "licensing risks, ESG regulation, technological disruption, product obsolescence, "
+            "and innovation cycle risks."
+        ),
+    },
 ]

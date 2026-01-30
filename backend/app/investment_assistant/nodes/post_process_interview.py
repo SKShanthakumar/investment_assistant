@@ -1,8 +1,9 @@
 from langchain.messages import SystemMessage, HumanMessage
 from langchain_core.messages import get_buffer_string
+from langfuse import observe
 
 from investment_assistant.states import InterviewState
-from investment_assistant.utils.models import cheap_model
+from investment_assistant.utils.models import llm_call
 from investment_assistant.prompts.post_process_interview import system_prompt
 
 
@@ -24,6 +25,7 @@ def route_messages(state: InterviewState, name: str = "expert"):
     return "ask_question"
 
 
+@observe
 async def write_analysis_report(state: InterviewState):
     """ Convert the interview transcript into a analysis report """
 
@@ -32,6 +34,6 @@ async def write_analysis_report(state: InterviewState):
     analyst = state.analyst
    
     system_message = system_prompt.format(focus=analyst.description)
-    section = await cheap_model.ainvoke([SystemMessage(content=system_message), HumanMessage(content=f"Here is the interview transcript: {interview}")]) 
+    section = await llm_call([SystemMessage(content=system_message), HumanMessage(content=f"Here is the interview transcript: {interview}")], lite=True)
 
     return {"sections": [section.content]}

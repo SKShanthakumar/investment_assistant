@@ -1,7 +1,8 @@
 from langchain.messages import SystemMessage, HumanMessage
+from langfuse import observe
 
 from investment_assistant.states import InterviewState
-from investment_assistant.utils.models import model, cheap_model
+from investment_assistant.utils.models import llm_call
 from investment_assistant.prompts.question_generation import ask_question_prompt, search_query_prompt
 
 
@@ -11,11 +12,11 @@ async def generate_search_query(messages):
         role = 'Analyst' if i % 2 == 0 else 'Expert'
         interview += f'{role}: {message.content}\n\n'
 
-    result = await model.ainvoke([SystemMessage(content=search_query_prompt), HumanMessage(content=interview) ])
+    result = await llm_call([SystemMessage(content=search_query_prompt), HumanMessage(content=interview)])
 
     return result.content
 
-
+@observe
 async def generate_question(state: InterviewState) -> InterviewState:
     """ Node to generate a question by analyst agent and derive search query from it """
 
@@ -25,7 +26,7 @@ async def generate_question(state: InterviewState) -> InterviewState:
 
     # Generate question 
     system_message = ask_question_prompt.format(goals=analyst, company=company)
-    question = await model.ainvoke([SystemMessage(content=system_message)]+messages)
+    question = await llm_call([SystemMessage(content=system_message)]+messages)
 
     # Generate search query for web search
     search_query = await generate_search_query([*state.interview_messages[1:], question])
