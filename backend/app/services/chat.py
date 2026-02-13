@@ -9,6 +9,8 @@ from app.utils.chat import validate_thread
 
 
 async def add_chat_to_db(thread_id: str, role: str, message: str, db: AsyncIOMotorDatabase):
+    """ Background task to add chat list to mongodb """
+
     chat_doc = {
         "role": role,
         "message": message
@@ -25,6 +27,8 @@ async def add_chat_to_db(thread_id: str, role: str, message: str, db: AsyncIOMot
 
 
 async def chat(graph: CompiledStateGraph, thread_id: str, prompt: str, background_tasks: BackgroundTasks, db: AsyncIOMotorDatabase):
+    """ Main chat endpoint """
+    
     if thread_id is None:
         # New chat
         thread_id = str(uuid.uuid4())
@@ -84,6 +88,8 @@ async def chat(graph: CompiledStateGraph, thread_id: str, prompt: str, backgroun
 
 
 async def approve_research(graph: CompiledStateGraph, thread_id: str, action: bool, background_tasks: BackgroundTasks, db: AsyncIOMotorDatabase):
+    """ Starts deep research on user approval. resumes graph on human approval node """
+    
     thread = {"configurable": {"thread_id": thread_id}}
 
     if not await validate_thread(graph, thread):
@@ -137,11 +143,15 @@ async def approve_research(graph: CompiledStateGraph, thread_id: str, action: bo
 
 
 async def get_chat_list(thread_id: str, db: AsyncIOMotorDatabase):
+    """ Gets previous messages of a thread """
+
     result = await db.chat.find_one({"thread_id": thread_id})
     return JSONResponse(content={'chat': result['chat']})
 
 
 async def get_chat_history(db: AsyncIOMotorDatabase):
+    """ List of chat history """
+    
     docs = []
     async for doc in db.chat.find({}):
         docs.append({
