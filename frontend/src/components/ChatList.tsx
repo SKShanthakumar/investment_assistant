@@ -9,7 +9,7 @@ export default function ChatList({ chat, approval_required, handle_approval, loa
                 <p className="text-3xl mb-4">Hi, I’m StoxAI</p>
                 <p className="text-sm">I help you research stocks before you invest.</p>
                 <p className="text-sm">Ask me about any company and I’ll break it down with deep analysis and SWOT insights.</p>
-                <p className="italic mt-4">Try asking: “Should I invest in NVIDIA?”</p>
+                <p className="italic mt-4">Try asking: “Should I invest in TCS?”</p>
             </div>
         )
     }

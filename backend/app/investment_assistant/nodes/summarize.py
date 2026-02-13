@@ -35,7 +35,7 @@ async def summarize_conversation(chat: List[HumanMessage | AIMessage], summary: 
         HumanMessage(content=prompt)
         ]
     
-    response = await llm_call(messages)
+    response = await llm_call(messages, lite=True)
     
     return response.content
 
