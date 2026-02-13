@@ -22,13 +22,19 @@ async def classify_intent(state: ResearchStateWithMessage):
     """
     Classify the intent of the user input as either 'company_research' or 'general_chat'.
     """
-    user_query = state.messages[-1].content
-    
-    result = await llm_call_with_structured_output([
-        SystemMessage(content=system_prompt),
-        HumanMessage(content=f"Classify the following user input: '{user_query}'")
-    ], IntentClassification)
 
-    if result.intent == "company_research":
-        return "gather_company_info"
-    return "general_chat"
+    try:
+        user_query = state.messages[-1].content
+        
+        result = await llm_call_with_structured_output([
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=f"Classify the following user input: '{user_query}'")
+        ], IntentClassification)
+
+        if result.intent == "company_research":
+            return "gather_company_info"
+        return "general_chat"
+
+    except Exception as e:
+        # Default fallback to chat
+        return "general_chat"

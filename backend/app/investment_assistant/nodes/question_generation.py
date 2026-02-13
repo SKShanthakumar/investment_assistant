@@ -19,19 +19,29 @@ async def generate_search_query(messages):
 @observe
 async def generate_question(state: InterviewState) -> InterviewState:
     """ Node to generate a question by analyst agent and derive search query from it """
+    
+    if state.error:
+        return {}
 
     analyst = state.analyst
     company = state.company
     messages = state.interview_messages
 
-    # Generate question 
-    system_message = ask_question_prompt.format(goals=analyst, company=company)
-    question = await llm_call([SystemMessage(content=system_message)]+messages)
+    try:
+        # Generate question 
+        system_message = ask_question_prompt.format(goals=analyst, company=company)
+        question = await llm_call([SystemMessage(content=system_message)]+messages)
 
-    # Generate search query for web search
-    search_query = await generate_search_query([*state.interview_messages[1:], question])
+        # Generate search query for web search
+        search_query = await generate_search_query([*state.interview_messages[1:], question])
 
-    return {
-        "interview_messages": [question],
-        "search_query": search_query
+        return {
+            "interview_messages": [question],
+            "search_query": search_query
+            }
+
+    except Exception as e:
+        return {
+            "error": True,
+            "error_message": 'Question generation failed.'
         }

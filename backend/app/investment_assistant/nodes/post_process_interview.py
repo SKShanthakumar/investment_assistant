@@ -29,11 +29,21 @@ def route_messages(state: InterviewState, name: str = "expert"):
 async def write_analysis_report(state: InterviewState):
     """ Convert the interview transcript into a analysis report """
 
+    if state.error:
+        return {}
+
     messages = state.interview_messages
     interview = get_buffer_string(messages) # List of messages to single string
     analyst = state.analyst
    
-    system_message = system_prompt.format(focus=analyst.description)
-    section = await llm_call([SystemMessage(content=system_message), HumanMessage(content=f"Here is the interview transcript: {interview}")], lite=True)
+    try:
+        system_message = system_prompt.format(focus=analyst.description)
+        section = await llm_call([SystemMessage(content=system_message), HumanMessage(content=f"Here is the interview transcript: {interview}")], lite=True)
 
-    return {"sections": [section.content]}
+        return {"sections": [section.content]}
+
+    except Exception as e:
+        return {
+            "error": True,
+            "error_message": 'Interview report generation failed.'
+        }

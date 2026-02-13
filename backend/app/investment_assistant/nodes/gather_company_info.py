@@ -30,19 +30,26 @@ async def search_company_info(company_name: str):
 async def gather_info(state: ResearchStateWithMessage) -> ResearchStateWithMessage:
     """ Gathers company information from web and updates the research state. """
 
-    messages = state.messages
-    company_name = await extract_company_name(messages)
-    web_search_result = await search_company_info(company_name)
+    try:
+        messages = state.messages
+        company_name = await extract_company_name(messages)
+        web_search_result = await search_company_info(company_name)
 
-    # Extract structured data from web search
-    extracted_model = await llm_call_with_structured_output([SystemMessage(content=structured_data_extraction_prompt), HumanMessage(content=web_search_result)], ResearchState)
+        # Extract structured data from web search
+        extracted_model = await llm_call_with_structured_output([SystemMessage(content=structured_data_extraction_prompt), HumanMessage(content=web_search_result)], ResearchState)
 
-    confirmation_message = web_search_result + ' Did you mean this company?'
-    
-    # Custom streaming web result
-    chain = RunnableLambda(func=fake_stream)
-    events = [
-        event async for event in chain.astream_events(confirmation_message, version="v2")
-    ]
+        confirmation_message = web_search_result + ' Did you mean this company?'
+        
+        # Custom streaming web result
+        chain = RunnableLambda(func=fake_stream)
+        events = [
+            event async for event in chain.astream_events(confirmation_message, version="v2")
+        ]
 
-    return {"messages": AIMessage(content=confirmation_message), **extracted_model.model_dump()}
+        return {"messages": AIMessage(content=confirmation_message), **extracted_model.model_dump()}
+
+    except Exception as e:
+        return {
+            "error": True,
+            "error_message": 'Company info gathering failed.'
+        }

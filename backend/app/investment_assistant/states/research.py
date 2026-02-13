@@ -17,3 +17,5 @@ class ResearchStateWithMessage(ResearchState):
     sections: Annotated[List[str], operator.add]
     approved: bool = False
     summary: str = ''
+    error: bool = False
+    error_message: str = ''

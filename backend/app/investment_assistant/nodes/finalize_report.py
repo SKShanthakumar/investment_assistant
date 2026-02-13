@@ -9,12 +9,22 @@ from investment_assistant.prompts.finalize_report import system_prompt
 @observe
 async def final_report(state: ResearchStateWithMessage):
     """ Reduce phase where we combine all the separate reports given by all analysts """
-
+    
+    if state.error:
+        return {}
+    
     reports = state.sections
     prompt = f"Here are {len(reports)} reports:\n"
     for i, report in enumerate(reports):
         prompt += f"REPORT {i + 1}:\n\n{report}\n\n"
 
-    result = await llm_call([SystemMessage(content=system_prompt), HumanMessage(content=prompt)])
+    try:
+        result = await llm_call([SystemMessage(content=system_prompt), HumanMessage(content=prompt)])
 
-    return {"messages": [result]}
+        return {"messages": [result]}
+    
+    except Exception as e:
+        return {
+            "error": True,
+            "error_message": 'Final report generation failed.'
+        }

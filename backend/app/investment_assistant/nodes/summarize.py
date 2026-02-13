@@ -48,16 +48,28 @@ def calculate_tokens(messages: List[HumanMessage | AIMessage]):
 
 
 async def token_limit_checker(state: ResearchStateWithMessage):
+    """ Checks token count and initiates chat summarization if threshold limit is reached """
+    
+    if state.error:
+        return {}
 
     messages = state.messages
     summary = state.summary
     delete_messages = []    # List messages to truncate - remains empty if summarization is not triggered
 
     token_count = calculate_tokens(messages)
-    if token_count > TOKEN_LIMIT:
-        summary = await summarize_conversation(messages, summary)
 
-        # Retaining last 2 messages
-        delete_messages = [RemoveMessage(id=m.id) for m in messages[:-2]]
-    
-    return {"summary": summary, "messages": delete_messages}
+    try:
+        if token_count > TOKEN_LIMIT:
+            summary = await summarize_conversation(messages, summary)
+
+            # Retaining last 2 messages
+            delete_messages = [RemoveMessage(id=m.id) for m in messages[:-2]]
+        
+        return {"summary": summary, "messages": delete_messages}
+
+    except Exception as e:
+        return {
+            "error": True,
+            "error_message": 'Summarization failed.'
+        }

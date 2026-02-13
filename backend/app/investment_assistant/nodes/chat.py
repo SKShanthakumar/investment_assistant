@@ -10,6 +10,13 @@ from investment_assistant.prompts.chat import system_prompt
 async def general_chat(state: ResearchStateWithMessage):
     """General chat state update"""
 
-    response = await llm_call([SystemMessage(content=system_prompt), *state.messages])
+    try:
+        response = await llm_call([SystemMessage(content=system_prompt), *state.messages])
 
-    return {"messages": response}
+        return {"messages": response}
+    
+    except Exception as e:
+        return {
+            "error": True,
+            "error_message": 'Chat failed.'
+        }
